@@ -7,19 +7,11 @@ import time
 from google.cloud import pubsub_v1
 import json 
 import threading
+import dataflow
 
 # send data to dataflow.py
 publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path('juve-402715', 'juve')
-
-'''
-# Socket setup
-host = 'localhost'  # Update to your server's IP
-port = 5500        # Update to your desired port
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((host, port))
-s.listen(5)
-'''
 
 
 app = Flask(__name__)
@@ -39,6 +31,36 @@ def handle_connect():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+LEVELS = {
+    'tutorial': TutorialLevel(),
+    'gameplay': GameLevel()
+
+}
+
+current_level = LEVELS['tutorial']
+
+
+
+def game_loop(): #call game_loop() when user starts game
+    duration = 60 #seconds
+    start_time = time.time()
+
+    while True:
+        elapsed_time = time.time() - start_time
+
+        #frame processing and game logic goes here
+
+        if elapsed_time >= duration:
+            # Send "end of game" message
+            end_message = json.dumps({'end_of_game': True}).encode('utf-8')
+            publisher.publish(topic_path, data=end_message)
+
+            #add_score_to_user(username, score)
+            
+            # Reset timer for next game
+            start_time = time.time()
 
 
 def send_data_to_pubsub(coordinates_batch):
@@ -71,7 +93,7 @@ def process_frames():
 
         #coordinates_batch.append(coordinates)
 
-        # Draw pose landmarks on the frame
+        
         if results.pose_landmarks:
             mpDraw.draw_landmarks(frame, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
             right_hand_landmark = results.pose_landmarks.landmark[20]
@@ -88,7 +110,6 @@ def process_frames():
                 count += 1
             
 
-        # Convert the frame to JPEG format to send over the socket
         _, buffer = cv2.imencode('.jpg', frame)
         frame_bytes = buffer.tobytes()
 
