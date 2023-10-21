@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Ninja Duuuuupe</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        #video-container {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="video_container"></div>
+    
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var videoContainer = document.getElementById('video_container');
+
+        socket.on('connect', function () {
+            console.log('Connected to the server');
+        });
+
+        socket.on('video_frame', function (frameBytes) {
+            var blob = new Blob([frameBytes], {
+                type: 'image/jpeg'
+            });
+            var img = new Image();
+            img.onload = function () {
+                var canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Get canvas context
+                var ctx = canvas.getContext('2d');
+
+                // Flip the image horizontally
+                ctx.translate(img.width, 0);
+                ctx.scale(-1, 1);
+
+                // Draw the image on the canvas
+                ctx.drawImage(img, 0, 0);
+
+                // Display the canvas inside the video container
+                videoContainer.innerHTML = '';
+                videoContainer.appendChild(canvas);
+            };
+            img.src = URL.createObjectURL(blob);
+        });
+   
+    </script>
+</body>
+
+</html>
