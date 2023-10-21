@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Ninja Duuuuupe</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        #video-container {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="video-container"></div>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var videoContainer = document.getElementById('video-container');
+
+        socket.on('connect', function () {
+            console.log('Connected to the server');
+        });
+
+        socket.on('video_frame', function (frameBytes) {
+            var blob = new Blob([frameBytes], {
+                type: 'image/jpeg'
+            });
+            var imgUrl = URL.createObjectURL(blob);
+
+            var videoElement = document.createElement('img');
+            videoElement.src = imgUrl;
+            videoElement.setAttribute('width', '100%');
+            videoContainer.innerHTML = '';
+            videoContainer.appendChild(videoElement);
+        });
+    </script>
+</body>
+
+</html>

@@ -21,7 +21,7 @@ def run():
     with beam.Pipeline(options=pipeline_options) as p:
         (p | 'ReadFromPubSub' >> ReadFromPubSub(topic='projects/juve-402715/topics/juve')
            | 'ProcessCoordinates' >> beam.Map(process_coordinates)
-           | 'LogResults' >> WriteToText('gs://YOUR_BUCKET_NAME/output_dir')
+           | 'LogResults' >> WriteToText('gs://juve_bucket/output_dir')
         )
 
 if __name__ == "__main__":
