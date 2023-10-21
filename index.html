@@ -2,15 +2,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Fruit Ninja Duuuuupe</title>
 </head>
 
 <body>
     <div id="game-container">
+        <div id = "score"></div>
+        <div id = "bubble-container"></div>
         <h1>hi for now</h1>
+        <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+        <script src = "{{ url_for('static', filename='scripts.js'  )}}"></script>
     </div>
-    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
-    <script src = "static/scripts.js"></script>
 </body>
 </html>

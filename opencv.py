@@ -7,11 +7,8 @@ import datetime, time
 import os, sys
 import numpy as np
 
-global capture,rec_frame, grey, switch, neg, face, rec, out 
+global capture,rec_frame, switch, rec, out 
 capture=0
-grey=0
-neg=0
-face=0
 switch=1
 rec=0
 
@@ -40,10 +37,8 @@ def record(out):
 
 def process_frames():
     print('Processing frames')
-    
+    global out, capture,rec_frame
     pTime = time.time()
-    
-    
 
     while True:
         
@@ -77,11 +72,13 @@ def process_frames():
         fps = 1 / (cTime-pTime)
         pTime = cTime
 
-        cv2.putText(img, str(int(fps)), (50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0), 3)
-        #cv2.setWindowProperty("Image", cv2.WND_PROP_OPENGL, cv2.WINDOW_NORMAL)
-        #cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
-        cv2.imshow("Image", img)
-        cv2.waitKey(1)
+        if (rec):
+            rec_frame=imgRGB
+            cv2.putText(img, str(int(fps)), (50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0), 3)
+            #cv2.setWindowProperty("Image", cv2.WND_PROP_OPENGL, cv2.WINDOW_NORMAL)
+            #cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
+            cv2.imshow("Image", img)
+            cv2.waitKey(1)
 
         socketio.emit('pose_data', {
             'rightPalm_x':rightPalm_x,
