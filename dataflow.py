@@ -1,6 +1,7 @@
 import apache_beam as beam
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.io import ReadFromPubSub, WriteToText
+import socket
 
 # Process coordinates and check for collisions
 def process_coordinates(element):
@@ -12,7 +13,11 @@ def process_coordinates(element):
     # if coordinates collide with fruits:
     #     collision_detected = True
 
-    return {"coords": coords, "collision": collision_detected}
+    return 1 if collision_detected else 0
+
+
+
+
 
 def run():
     # Set up pipeline options (e.g., authentication, region, etc.)
@@ -21,8 +26,14 @@ def run():
     with beam.Pipeline(options=pipeline_options) as p:
         (p | 'ReadFromPubSub' >> ReadFromPubSub(topic='projects/juve-402715/topics/juve')
            | 'ProcessCoordinates' >> beam.Map(process_coordinates)
-           | 'LogResults' >> WriteToText('gs://YOUR_BUCKET_NAME/output_dir')
+           | 'LogResults' >> WriteToText('gs://juve_bucket/output_dir')
+           | 'WriteToFirestore' >> beam.ParDo(WriteToFirestoreFn())
         )
+
+class WriteToFirestoreFn(beam.DoFn):
+    def process(self, element):
+        # Logic to write `element` (which is the count of collisions) to Firestore
+        pass
 
 if __name__ == "__main__":
     run()
