@@ -16,6 +16,9 @@ def process_coordinates(element):
     return 1 if collision_detected else 0
 
 
+
+
+
 def run():
     # Set up pipeline options (e.g., authentication, region, etc.)
     pipeline_options = PipelineOptions()

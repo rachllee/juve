@@ -15,11 +15,11 @@
 </head>
 
 <body>
-    <div id="video-container"></div>
+    <div id="video_container"></div>
     
     <script>
         var socket = io.connect('http://' + document.domain + ':' + location.port);
-        var videoContainer = document.getElementById('video-container');
+        var videoContainer = document.getElementById('video_container');
 
         socket.on('connect', function () {
             console.log('Connected to the server');
@@ -29,14 +29,29 @@
             var blob = new Blob([frameBytes], {
                 type: 'image/jpeg'
             });
-            var imgUrl = URL.createObjectURL(blob);
+            var img = new Image();
+            img.onload = function () {
+                var canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
 
-            var videoElement = document.createElement('img');
-            videoElement.src = imgUrl;
-            videoElement.setAttribute('width', '100%');
-            videoContainer.innerHTML = '';
-            videoContainer.appendChild(videoElement);
+                // Get canvas context
+                var ctx = canvas.getContext('2d');
+
+                // Flip the image horizontally
+                ctx.translate(img.width, 0);
+                ctx.scale(-1, 1);
+
+                // Draw the image on the canvas
+                ctx.drawImage(img, 0, 0);
+
+                // Display the canvas inside the video container
+                videoContainer.innerHTML = '';
+                videoContainer.appendChild(canvas);
+            };
+            img.src = URL.createObjectURL(blob);
         });
+   
     </script>
 </body>
 

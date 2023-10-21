@@ -28,8 +28,8 @@ def handle_connect():
 def index():
     return render_template('index.html')
 
-@app.route('/video')
-def video():
+@app.route('/video_container')
+def video_container():
     return Response(process_frames(),mimetype='multipart/x-mixed-replace; boundary=frame')
 
 def process_frames():
@@ -51,7 +51,7 @@ def process_frames():
             _, buffer = cv2.imencode('.jpg', frame)
             frame_bytes = buffer.tobytes()
 
-            #socketio.emit('video_frame', frame_bytes)
+        #socketio.emit('video_frame', frame_bytes)
         yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 

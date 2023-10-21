@@ -3,11 +3,8 @@ import mediapipe as mp
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from threading import Thread
-import datetime, time
-import os, sys
-import numpy as np
+import time
 from google.cloud import pubsub_v1
-import socket
 import json 
 import threading
 
@@ -58,7 +55,7 @@ BATCH_SIZE = 10
 def process_frames():
     coordinates_batch = []
     while True:
-        coordinates = {}
+        coordinates = []
 
         success, frame = cap.read()
         if not success:
@@ -72,22 +69,23 @@ def process_frames():
         # Detect pose landmarks
         results = pose.process(rgb_frame)
 
-        coordinates_batch.append(coordinates)
+        #coordinates_batch.append(coordinates)
 
         # Draw pose landmarks on the frame
         if results.pose_landmarks:
             mpDraw.draw_landmarks(frame, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
-            right_hand_landmark = results.pose_landmarks.landmark[15]
+            right_hand_landmark = results.pose_landmarks.landmark[20]
             rHand_x = int(right_hand_landmark.x * frame.shape[1])
             rHand_y = int(right_hand_landmark.y * frame.shape[0])
 
-
             cv2.circle(frame, (rHand_x, rHand_y), 20, (0,255,0), -1)
 
+            count = 0
             for landmark in results.pose_landmarks.landmark:
                 landmark_x = int(landmark.x * frame.shape[1])
                 landmark_y = int(landmark.y * frame.shape[0])
-                coordinates.update({'x': landmark_x, 'y': landmark_y})
+                coordinates.append({count: [landmark_x, landmark_y]})
+                count += 1
             
 
         # Convert the frame to JPEG format to send over the socket
@@ -104,12 +102,6 @@ def process_frames():
             threading.Thread(target=send_data_to_pubsub, args=(coordinates_batch,)).start()
             coordinates_batch = []
 
-        '''
-        # Forward received data to Pub/Sub
-        if coordinates_json:
-            coordinates_data = coordinates_json.encode('utf-8')
-            publisher.publish(topic_path, data=coordinates_data)
-        '''
         time.sleep(FRAME_DELAY)
 
 
@@ -117,4 +109,4 @@ if __name__ == '__main__':
     thread = Thread(target=process_frames)
     thread.daemon = True
     thread.start()
-    socketio.run(app)
+    socketio.run(app, debug=True)
