@@ -67,14 +67,7 @@ class ProcessCoordinates(beam.DoFn):
             }
             db.collection("scores").add(game_data)
             self.score = 0
-        else:
-            #... [other collision detection logic]
-
-
-class WriteToFirestoreFn(beam.DoFn):
-    def process(self, element):
-        # Logic to write `element` (which is the count of collisions) to Firestore
-        pass
+        
 
 if __name__ == "__main__":
     run()

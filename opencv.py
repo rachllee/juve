@@ -32,6 +32,10 @@ def handle_connect():
 def index():
     return render_template('index.html')
 
+@app.route('/game.html')
+def game():
+    return render_template('game.html')
+
 
 LEVELS = {
     'tutorial': TutorialLevel(),
